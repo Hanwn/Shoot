@@ -1,5 +1,5 @@
 #include "threadpool.h"
-
+//TODO update manage thread number dynamicly
 threadpool_t* threadpool_init(int thread_num) {
     threadpool_t* pool = NULL;
     do{
@@ -118,7 +118,7 @@ int threadpool_free(threadpool_t* pool) {
     return 0;
 }
 
-int threadpool_destroy(threadpool_t* pool,int gracrful) {
+int threadpool_destroy(threadpool_t* pool,int graceful) {
     if (pool==NULL) {
         //return threadpool_invalid;
     }
@@ -131,7 +131,7 @@ int threadpool_destroy(threadpool_t* pool,int gracrful) {
             err = 0;//
             break;
         }
-        pool->shutdown = (graceful)?gractful_shutdown : immediate_shutdown;
+        pool->shutdown = (graceful)?graceful_shutdown : immediate_shutdown;
 
         if (pthread_cond_broadcast(&(pool->cond)) != 0) {
             err = 0;//;
