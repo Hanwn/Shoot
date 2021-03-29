@@ -1,4 +1,4 @@
-OBJS=epoll.o http.o main.o Server.o task_queue.o thread_pool.o utils.o
+OBJS=epoll.o http.o main.o Server.o task_queue.o thread_pool.o utils.o time.o heap.o 
 CFLAGS+=-pthread
 
 target:$(OBJS)
