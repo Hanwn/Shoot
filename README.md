@@ -1,4 +1,4 @@
-<center><img src="https://github.com/Hanwn/Shoot/blob/dev/pic/logo.png?raw=true" width="200px" height="200px" ></center>
+<div align=center><img src="https://github.com/Hanwn/Shoot/blob/dev/pic/logo.png?raw=true" width="200px" height="200px" ></div>
 
 # Shoot HTTP Server
 
