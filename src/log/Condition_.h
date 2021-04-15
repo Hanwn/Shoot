@@ -1,20 +1,20 @@
 #ifndef CONDITION_H_
 #define CONDITION_H_
 
-#include <condition.h>
 #include <pthread.h>
 #include "mutex_lock.h"
 #include <time.h>
+#include <errno.h>
 
 class Condition{
 public:
-    explicit Condition(MutexLock& mutex_) :mutex_(mutex_){ pthread_cond_init(&cond, nullptr); }
+    explicit Condition(MutexLock& _mutex) :mutex_(_mutex){ pthread_cond_init(&cond, nullptr); }
     Condition(const Condition& condition) = delete;
     ~Condition() {}
     const Condition& operator=(const Condition& condition) = delete;
 
 public:
-    void wait() { pthread_cond_wait(&cond, mutex_);}
+    void wait() { pthread_cond_wait(&cond, mutex_.get());}
     void notify() { pthread_cond_signal(&cond); }
     void notify_all() { pthread_cond_broadcast(&cond); }
     bool wait_seconds(int seconds) {
