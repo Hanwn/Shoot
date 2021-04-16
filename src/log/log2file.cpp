@@ -15,6 +15,8 @@ void Log2File::append(const char* log_line, int len) {
 }
 
 
+// why need lock?
+// I think on the reactor loops will be multi-thread environment and multi thread will exist race condition.
 void Log2File::flush() {
     MutexLockGuard lock(*mutex_);
     file_->flush();
