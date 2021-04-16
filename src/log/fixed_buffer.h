@@ -1,5 +1,5 @@
-#ifndef FIXED_BUFFER_H
-#define FIXED_BUFFER_H
+#ifndef FIXED_BUFFER_H_
+#define FIXED_BUFFER_H_
 
 #include <iostream>
 
@@ -19,6 +19,11 @@ public:
     void reset();
     void bzero();
 
+    //for test and debug function
+    void display() {
+        std::cout<<data_<<std::endl;
+    }
+
 private:
     const char* end() const;
     // QUESTION:template parameter as array length?
@@ -27,5 +32,7 @@ private:
     char* cur_;
 };
 
+const int small_buffer = 4000;
+const int large_buffer = 4000*1000;
 
 #endif

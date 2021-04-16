@@ -1,4 +1,5 @@
 #include "fixed_buffer.h"
+#include <string.h>
 
 
 template<int SIZE>
@@ -7,7 +8,7 @@ FixedBuffer<SIZE>::FixedBuffer() :cur_(data_){}
 template<int SIZE>
 void FixedBuffer<SIZE>::append(const char* msg, size_t len) {
     if (avail() > static_cast<int>(len)) {
-        memcpy(cur_, msg, len)
+        memcpy(cur_, msg, len);
         cur_ += len;
     }
 }
