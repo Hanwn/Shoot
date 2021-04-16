@@ -11,7 +11,7 @@ public:
     void flush();
 
 private:
-    size_t write(const char* log_line, size_t len);
+    size_t write_unlocked_(const char* log_line, size_t len);
     FILE* fp_;
     char buf_[64*1024];
 };

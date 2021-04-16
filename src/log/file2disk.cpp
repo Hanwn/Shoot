@@ -12,11 +12,11 @@ WriteFile::~WriteFile() {
 
 
 void WriteFile::append(const char* log_line, size_t len) {
-    size_t n = this->write(log_line, len);
+    size_t n = this->write_unlocked_(log_line, len);
     size_t remain = len - n;
     // Maybe not all at once
     while (remain > 0) {
-        size_t x = this->write(log_line + n, remain);
+        size_t x = this->write_unlocked_(log_line + n, remain);
         if (x == 0) {
             int err = ferror(fp_);
             if (err) fprintf(stderr, "WriteFile::append() failed!\n");
@@ -33,7 +33,7 @@ void WriteFile::flush() {
 }
 
 
-size_t WriteFile::write(const char* log_line, size_t len) {
+size_t WriteFile::write_unlocked_(const char* log_line, size_t len) {
     // fwrite_unlocked is nonlocking stdio functions,
     // the parameter 1 means each data size, not begin pos
     // no race condition
