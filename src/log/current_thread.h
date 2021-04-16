@@ -3,9 +3,9 @@
 
 #include <iostream>
 
-thread_local pid_t thread_id_;
-thread_local std::string thread_name_;
-thread_local std::string thread_status_;
+thread_local pid_t thread_id_ = 0;
+thread_local std::string thread_name_ = "default";
+thread_local std::string thread_status_ = "default";
 
 
 #endif
