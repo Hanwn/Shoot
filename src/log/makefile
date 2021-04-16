@@ -1,4 +1,4 @@
-OBJS=test_stdio.o file2disk.o
+OBJS=test_log_stream.o log_stream.o 
 CFLAGS+=-pthread
 
 target:$(OBJS)
