@@ -11,6 +11,9 @@
 
 void* thread_func(void* p) {
     prctl(PR_SET_NAME, "test_e");
+    char name[32] = {0};
+    prctl(PR_GET_NAME, name);
+    std::cout<<name<<std::endl;
     usleep(100000000000);
     void* ret;
     pthread_exit(ret);
