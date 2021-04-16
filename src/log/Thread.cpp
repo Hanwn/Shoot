@@ -3,7 +3,9 @@
 #include <unistd.h>
 #include <sys/prctl.h>
 #include <sys/unistd.h>
+#include <sys/syscall.h>
 #include <linux/prctl.h>
+#include "current_thread.h"
 #include <linux/unistd.h>
 #include "Thread.h"
 
@@ -13,12 +15,15 @@ void* start_thread(void* obj) {
     // awake up main thread start function
     data->latch_->count_down();
 
-    // thread_name_ = data->name_.empty() ? "Thread" : data->name_.c_str();
+    int current_thread_id = static_cast<int>(::syscall(SYS_gettid));
+    thread_name_ = data->name_.empty() ? "Thread" : data->name_.c_str() + std::to_string(current_thread_id);
+
+    // std::cout<<thread_name_<<std::endl;
     // BUG:how to use prctl function
-    // prctl(PR_SET_NAME , thread_name_);
+    prctl(PR_SET_NAME , thread_name_);
     
     data->func_();
-    // thread_status_ = "finished";
+    thread_status_ = "finished";
     delete data;
     // FIXME: pthread_exit();? would be better?
     return nullptr;
@@ -37,6 +42,7 @@ Thread::Thread(const ThreadFunc& func, const std::string name)
 
 Thread::~Thread() {
     // 线程分离
+    // FIXME:maybe a bug?
     if (started_ && !joined_) pthread_detach(thread_);
 }
 
