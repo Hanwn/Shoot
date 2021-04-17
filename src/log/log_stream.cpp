@@ -88,8 +88,11 @@ LogStream& LogStream::operator<<(double v) {
     return *this;
 }
 
-LogStream& operator<<(long double v) {
-    format_integer(v);
+LogStream& LogStream::operator<<(long double v) {
+    if (buffer_.avail() >= number_size_limit) {
+        int len = snprintf(buffer_.current(), number_size_limit, "%.12Lg", v);
+        buffer_.add(len);
+    }
     return *this;
 }
 
