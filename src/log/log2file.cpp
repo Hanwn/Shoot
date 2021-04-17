@@ -1,6 +1,6 @@
 #include "log2file.h"
 
-Log2File::Log2File(const std::string& _file_name, int _flush_freq = 1023) 
+Log2File::Log2File(const std::string& _file_name, int _flush_freq) 
     : file_name_(_file_name),
       flush_freq_(_flush_freq),
       count_(0),

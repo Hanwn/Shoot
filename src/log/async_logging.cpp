@@ -1,6 +1,6 @@
 #include "async_logging.h"
 
-AsyncLogging::AsyncLogging(std::string _filename, int _flush_freq = 3 )
+AsyncLogging::AsyncLogging(std::string _filename, int _flush_freq )
     : flush_freq(_flush_freq) ,
       running(false),
       filename_(_filename),
