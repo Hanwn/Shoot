@@ -10,6 +10,10 @@ Logger::Logger(const char* _file_name, int _line)
           format_time();
       }
 
+LogStream& Logger::stream() {
+    return stream_;
+}
+
 
 // QUESTION: time module
 void Logger::format_time() {
