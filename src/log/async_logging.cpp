@@ -47,7 +47,7 @@ void AsyncLogging::append(const char* msg, int len) {
         curr_buffer_.reset();
         if (next_buffer_) {
             curr_buffer_ = std::move(next_buffer_);
-            //QUESTION:当move之后，next_buffer 已经不存在，所以使用next_buffer的意义是什么?
+            //DONE:当move之后，next_buffer 已经不存在，所以使用next_buffer的意义是什么?
         } else {
             curr_buffer_.reset(new buffer);
         }
