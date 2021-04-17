@@ -35,36 +35,36 @@
 
 template <int SIZE>
 class FixedBuffer {
- public:
-  FixedBuffer() : cur_(data_) {}
+public:
+    FixedBuffer() : cur_(data_) {}
 
-  ~FixedBuffer() {}
+	~FixedBuffer() = default;
 
-  void append(const char* buf, size_t len) {
-    if (avail() > static_cast<int>(len)) {
-      memcpy(cur_, buf, len);
-      cur_ += len;
-    }
-  }
+	void append(const char* buf, size_t len) {
+		if (avail() > static_cast<int>(len)) {
+			memcpy(cur_, buf, len);
+			cur_ += len;
+		}
+  	}
 
-  const char* data() const { return data_; }
-  int size() const { return static_cast<int>(cur_ - data_); }
+	const char* data() const { return data_; }
+	int size() const { return static_cast<int>(cur_ - data_); }
 
-  char* current() { return cur_; }
-  int avail() const { return static_cast<int>(end() - cur_); }
-  void add(size_t len) { cur_ += len; }
+	char* current() { return cur_; }
+	int avail() const { return static_cast<int>(end() - cur_); }
+	void add(size_t len) { cur_ += len; }
 
-  void reset() { cur_ = data_; }
-  void bzero() { memset(data_, 0, sizeof data_); }
+    void reset() { cur_ = data_; }
+    void bzero() { memset(data_, 0, sizeof data_); }
      //for test and debug function
-     void display() {
+    void display() {
          std::cout<<data_<<std::endl;
-     }
- private:
-  const char* end() const { return data_ + sizeof data_; }
+    }
+private:
+	const char* end() const { return data_ + sizeof data_; }
 
-  char data_[SIZE];
-  char* cur_;
+	char data_[SIZE];
+	char* cur_;
 };
 
 const int small_buffer = 4000;
