@@ -88,6 +88,11 @@ LogStream& LogStream::operator<<(double v) {
     return *this;
 }
 
+LogStream& operator<<(long double v) {
+    format_integer(v);
+    return *this;
+}
+
 LogStream& LogStream::operator<<(char v) {
     buffer_.append(&v, 1);
     return *this;
@@ -109,6 +114,11 @@ LogStream& LogStream::operator<<(const unsigned char* v) {
 }
 
 LogStream& LogStream::operator<<(std::string& v) {
+    buffer_.append(v.c_str(), v.size());
+    return *this;
+}
+
+LogStream& LogStream::operator<<(std::string&& v) {
     buffer_.append(v.c_str(), v.size());
     return *this;
 }

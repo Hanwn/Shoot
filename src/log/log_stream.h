@@ -19,12 +19,14 @@ public:
     LogStream& operator<<(unsigned long long);
     LogStream& operator<<(float);
     LogStream& operator<<(double);
+    LogStream& operator<<(long double);
     LogStream& operator<<(char);
     LogStream& operator<<(const char*);
 
     //QUESTION:const unsigned char*?
     LogStream& operator<<(const unsigned char*);
     LogStream& operator<<(std::string&);
+    LogStream& operator<<(std::string&&);
 
     void append(const char* _data, int _len);
     const Buffer& buffer() const;
