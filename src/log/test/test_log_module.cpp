@@ -73,15 +73,16 @@ int main()
 {
     // 共500014行
     type_test();
+    LOG <<"test"<<'\n';
     sleep(3);
 
-    stressing_single_thread();
-    sleep(3);
+    // stressing_single_thread();
+    // sleep(3);
 
     other();
     sleep(3);
 
-    stressing_multi_threads();
-    sleep(3);
+    // stressing_multi_threads();
+    // sleep(3);
     return 0;
 }
