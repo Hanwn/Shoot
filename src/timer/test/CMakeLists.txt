@@ -1,5 +1,6 @@
-cmake_minimum_required(VERSION 3.0)
+project(Test)
 
+add_executable(${PROJECT_NAME} test.cc)
 
-add_executable(test test.cc)
+target_link_libraries(${PROJECT_NAME} timer)
 
