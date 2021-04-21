@@ -23,7 +23,7 @@ void Logger::format_time() {
     ::gettimeofday(&tv, nullptr);
     time = tv.tv_sec;
     struct tm* p_time = localtime(&time);
-    strftime(str_t, 26, "%Y-%m-%d %H:%M:%S\n", p_time);
+    strftime(str_t, 26, "%Y-%m-%d %H:%M:%S\t", p_time);
     stream_ << str_t;
 }
 
