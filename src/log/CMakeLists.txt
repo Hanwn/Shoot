@@ -12,7 +12,7 @@ set(LIB_SRC
 
 add_library(libLOG ${LIB_SRC})
 target_link_libraries(libLOG pthread rt)
-
+target_include_directories(libLOG PUBLIC ./)
 set_target_properties(libLOG PROPERTIES OUTPUT_NAME "LOGMODULE")
 
 add_subdirectory(test)
