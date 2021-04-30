@@ -47,6 +47,7 @@ public:
     void disable_write();
 
 public:
+    void set_events(int op);
     int get_events();
     int get_fd();
     channelStatus get_status();

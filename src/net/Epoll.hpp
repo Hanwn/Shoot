@@ -9,7 +9,7 @@
 class Epoll {
 public:
     using channel_vector = std::vector<Channel*>;
-    Epoll();
+    Epoll(EventLoop* _loop);
     ~Epoll();
 
 public:
@@ -24,6 +24,8 @@ private:
     static const int MAXFDS = 1e5 + 1;
     int epoll_fd_;
     std::vector<struct epoll_event> event_array_;
+    EventLoop* own_loop_;
+    // std::shared_ptr<EventLoop> own_loop_;
     // TODO:add timer
     // TimerGuard<std::shared_ptr<Channel>> timer_guard_;
 };

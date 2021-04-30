@@ -13,6 +13,10 @@ int Channel::get_fd() {
     return fd;
 }
 
+void Channel::set_events(int op) {
+    event_ = op;
+}
+
 int Channel::get_events() {
     return event_;
 }

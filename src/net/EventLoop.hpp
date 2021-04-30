@@ -20,17 +20,23 @@ public:
     // STAR: this function is readlly Important
     void loop();
 
-    //TODO:2021年4月30日将要实现的函数
-    void run_in_curr_loop();
-    void queue_in_loop();
+    bool is_in_cur_loop();
+
+    void run_in_loop(callback&& cb);
+    void queue_in_loop(callback&& );
     void do_pending_functions();
     void wake_up_cur_thread();
+    void wake_up_response();
 
 private:
     std::unique_ptr<Epoll> poll_;
     std::vector<Channel*> active_vector;
     mutable MutexLock mutex_;
     std::vector<callback> pending_functions_;
+    int cur_thread_id_;
+    bool handle_pending_functions;
+    int wake_up_fd_;
+    std::shared_ptr<Channel> wake_up_channel_;
 };
 
 

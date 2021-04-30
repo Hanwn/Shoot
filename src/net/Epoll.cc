@@ -8,10 +8,10 @@
 const int EVENT_SUM = 4096;
 
 
-Epoll::Epoll() 
+Epoll::Epoll(EventLoop* _loop) 
     : epoll_fd_(epoll_create1(EPOLL_CLOEXEC))
-    , event_array_(EVENT_SUM) {
-
+    , event_array_(EVENT_SUM)
+    , own_loop_(_loop) {
 }
 
 Epoll::~Epoll() {
