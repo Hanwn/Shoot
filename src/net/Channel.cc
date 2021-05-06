@@ -55,3 +55,28 @@ void Channel::handle_enents() {
     }
 }
 
+void Channel::enable_read() {
+    event_ |= read_event;
+    update();
+}
+
+void Channel::enable_write() {
+    event_ |= write_event;
+    update();
+}
+
+void Channel::disable_read() {
+    event_ &= ~(read_event);
+    update();
+}
+
+void Channel::disable_write() {
+    event_ &= ~(write_event);
+    update();
+}
+
+void Channel::disalbel_all() {
+    event_ = none_event;
+    update();
+}
+

@@ -45,6 +45,7 @@ public:
     void enable_write();
     void disable_read();
     void disable_write();
+    void disalbel_all();
 
 public:
     void set_events(int op);
@@ -65,6 +66,10 @@ private:
     int revent_;
     int fd;
 
+    static const int none_event;
+    static const int read_event;
+    static const int write_event;
+
     channelStatus status;
 
     callback read_handler_;
@@ -73,5 +78,9 @@ private:
     callback close_handler_;
 };
 
+const int Channel::none_event = 0;
+// QUESTION:EPOLLPRI 什么时候使用?
+const int Channel::read_event = EPOLLIN | EPOLLPRI;
+const int Channel::write_event = EPOLLOUT;
 
 #endif

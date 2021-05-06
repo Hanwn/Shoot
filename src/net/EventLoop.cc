@@ -17,20 +17,35 @@ EventLoop::EventLoop()
     , handle_pending_functions(false)
     , wake_up_fd_(create_eventfd())
     , wake_up_channel_(new Channel(this, wake_up_fd_))
+    , quit_(true)
     {
-        wake_up_channel_->set_events(EPOLLIN | EPOLLET);
+        // wake_up_channel_->set_events(EPOLLIN | EPOLLET);
         wake_up_channel_->set_read_callback(std::bind(&EventLoop::wake_up_response, this));
-        poll_->epoll_add(wake_up_channel_.get(), EPOLL_CTL_ADD);
+        // 这里的调用会自动将这个channel_加入到Epoll的监控中
+        wake_up_channel_->enable_read();
+        // poll_->epoll_add(wake_up_channel_.get(), EPOLL_CTL_ADD);
     }
 
 
 EventLoop::~EventLoop() {
-
+    wake_up_channel_->disalbel_all();
+    wake_up_channel_->remove();
+    ::close(wake_up_fd_);
 }
 
 
 void EventLoop::loop() {
-    
+    quit_ = false;
+    while(!quit_) {
+        active_vector.clear();
+        poll_->poll(active_vector);
+        for (auto item : active_vector) {
+            item->handle_enents();
+        }
+        do_pending_functions();
+        // TODO:处理超时请求
+        handle_expired_time();
+    }
 }
 
 
@@ -79,6 +94,7 @@ void EventLoop::queue_in_loop(callback&& cb) {
     }
 }
 
+// 可能是别的线程加入当前线程的函数
 void EventLoop::do_pending_functions() {
     std::vector<callback> functors;
     handle_pending_functions = true;

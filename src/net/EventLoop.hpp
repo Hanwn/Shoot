@@ -29,6 +29,9 @@ public:
     void wake_up_response();
 
 private:
+    void handle_expired_time();
+
+private:
     std::unique_ptr<Epoll> poll_;
     std::vector<Channel*> active_vector;
     mutable MutexLock mutex_;
@@ -37,6 +40,7 @@ private:
     bool handle_pending_functions;
     int wake_up_fd_;
     std::shared_ptr<Channel> wake_up_channel_;
+    bool quit_;
 };
 
 
