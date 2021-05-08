@@ -1,5 +1,5 @@
-#include "EventLoop.hpp"
 
+#include "EventLoop.hpp"
 #include <syscall.h>
 #include <unistd.h>
 #include <sys/eventfd.h>
@@ -77,7 +77,7 @@ bool EventLoop::is_in_cur_loop() {
 }
 
 void EventLoop::run_in_loop(callback&& cb) {
-    if (is_in_cur_loop) {
+    if (is_in_cur_loop()) {
         cb();
     }else {
         queue_in_loop(std::move(cb));
@@ -116,4 +116,9 @@ void EventLoop::wake_up_cur_thread()  {
 void EventLoop::wake_up_response() {
     uint64_t one = 1;
     ssize_t n = read(wake_up_fd_, &one, sizeof one);
+}
+
+//TODO:finish quit function
+void EventLoop::quit() {
+
 }

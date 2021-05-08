@@ -13,6 +13,7 @@ enum class channelStatus{
 
 
 // Channel 的生命周期由TCPConnection控制
+// Channel 不拥有任何资源，无需在析构函数中释放
 class Channel {
 public:
     using callback = std::function<void()>;

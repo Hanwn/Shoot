@@ -5,6 +5,7 @@
 #include "Epoll.hpp"
 #include "mutex_lock.h"
 
+// EventLoop 拥有一个文件描述符，需要在析构函数中释放这个文件描述符
 class EventLoop{
 public:
     using callback = std::function<void()>;
@@ -27,7 +28,7 @@ public:
     void do_pending_functions();
     void wake_up_cur_thread();
     void wake_up_response();
-
+    void quit();
 private:
     void handle_expired_time();
 
