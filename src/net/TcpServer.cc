@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include "TcpConnection.hpp"
 
 TCPServer::TCPServer(EventLoop* _loop, std::string _thread_name, int port)
     : loop_(_loop)
@@ -43,12 +44,18 @@ void TCPServer::handle_new_conn() {
         LOG<<"New Connection from" << inet_ntoa(client_addr.sin_addr)<<":"<<ntohs(client_addr.sin_port);
         if (_accept_fd >= MAXFDS) {
             ::close(_accept_fd);
+            //retuen ? continue?
             continue;
         }
-    }
-    if (set_non_blocking(_accept_fd) < 0) {
-        LOG<<"Set non blocking io failed";
-        return;
+    
+        if (set_non_blocking(_accept_fd) < 0) {
+            LOG<<"Set non blocking io failed";
+            return;
+        }
+
+        std::shared_ptr<TCPConnection> conn_ptr(new TCPConnection(loop_, _accept_fd));
+        loop_->run_in_loop(std::bind(&TCPConnection::new_event, conn_ptr));
+        
     }
     // TODO:new a connection
 
