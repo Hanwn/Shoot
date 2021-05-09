@@ -15,7 +15,7 @@ Epoll::Epoll(EventLoop* _loop)
 }
 
 Epoll::~Epoll() {
-    close(epoll_fd_);
+    ::close(epoll_fd_);
 }
 
 void Epoll::epoll_add(Channel* _channel, int op) {

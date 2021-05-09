@@ -6,6 +6,7 @@
 #include "TimerGuard.hpp"
 
 // 每一个Epoll对象是每一个EventLoop的属性，换句话说，Epoll仅仅作为EventLoop的属性存在
+// 同时，一个Epoll对象拥有一个epoll_fd的资源，需要手动释放
 class Epoll {
 public:
     using channel_vector = std::vector<Channel*>;
