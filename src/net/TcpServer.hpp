@@ -22,8 +22,8 @@ private:
     std::string thread_name;
     std::unique_ptr<EventLoopPool> event_loop_pool_;    
     bool started_;
-    int listen_fd_;
     int port_;
+    int listen_fd_;
     std::shared_ptr<Channel> accpet_channel_;
     static const int MAXFDS = 100000;
     thread_callback cb_;
