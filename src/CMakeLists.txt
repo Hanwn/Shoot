@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED_VERSION(VERSION 3.0)
+cmake_minimum_required(VERSION 3.0)
 
 project(TEST_NET)
 
