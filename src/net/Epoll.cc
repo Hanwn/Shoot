@@ -24,7 +24,7 @@ void Epoll::epoll_add(Channel* _channel, int op) {
     event.data.ptr = _channel;
     event.events = _channel->get_events();
     int _fd = _channel->get_fd();
-    LOG<<"add listen fd"<<_fd;
+    LOG<<"add listen fd "<<_fd;
     if (::epoll_ctl(epoll_fd_, op, _fd, &event) < 0) {
         LOG<<"ADD ERROR\n";
     }

@@ -1,14 +1,17 @@
 #include "Channel.hpp"
+#include "logger.h"
 
 const int Channel::none_event = 0;
 // QUESTION:EPOLLPRI 什么时候使用?
-const int Channel::read_event = EPOLLIN | EPOLLPRI | EPOLLET;
-const int Channel::write_event = EPOLLOUT | EPOLLET;
+const int Channel::read_event = EPOLLIN;
+const int Channel::write_event = EPOLLOUT;
 
 Channel::Channel(EventLoop* _loop, int _fd) 
     : loop_(_loop)
     , fd(_fd) 
-    , status(channelStatus::NEW){ }
+    , status(channelStatus::NEW)
+    , event_(0)
+    , revent_(0) { }
 
 Channel::~Channel() {
 
@@ -44,7 +47,8 @@ void Channel::update() {
     loop_->update_channel(this);
 }
 
-void Channel::handle_enents() {
+void Channel::handle_events() {
+    LOG<<"handle_events--->8";
     // QUESTION: EPOLLPRI?
     // QUESTION:为什么EPOLLHUP需要放在读和写的前面
     if((revent_&EPOLLHUP) && !(revent_&EPOLLIN)) {
@@ -53,9 +57,11 @@ void Channel::handle_enents() {
     }
     if (revent_ & (EPOLLERR)) {
         if (error_handler_) error_handler_();
-    } else if (revent_ & (EPOLLIN | EPOLLHUP)) {
+    }
+    if (revent_ & (EPOLLIN | EPOLLHUP)) {
         if (read_handler_) read_handler_();
-    } else if (revent_ & EPOLLOUT) {
+    }
+    if (revent_ & EPOLLOUT) {
         if (write_handler_) write_handler_();
     }
 }
