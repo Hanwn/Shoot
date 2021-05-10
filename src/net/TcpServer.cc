@@ -25,18 +25,18 @@ TCPServer::~TCPServer() {
 }
 
 void TCPServer::start() {
-    event_loop_pool_->start(cb_);
+    LOG<<"Server is RUNNING:"<<"--->1";
     event_loop_pool_->set_thread_nums(4);
+    event_loop_pool_->start(cb_);
     accpet_channel_->set_read_callback(std::bind(&TCPServer::handle_new_conn, this));
     // 将当前channel加入到loop监听中
     accpet_channel_->enable_read();
 
     started_ = true;
-    LOG<<"Server is RUNNING";
 }
 
 void TCPServer::handle_new_conn() {
-    LOG<<"new connection";
+    LOG<<"handle_new_conn--->9";
     struct sockaddr_in client_addr;
     ::memset(&client_addr, 0, sizeof(struct sockaddr_in));
     socklen_t client_addr_len = sizeof (client_addr);

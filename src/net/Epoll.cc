@@ -57,9 +57,10 @@ void Epoll::epoll_mod(Channel* _channel, int op) {
 
 
 void Epoll::poll(channel_vector& v) {
-
+    LOG<<"poll--->7";
     int cnt_events = ::epoll_wait(epoll_fd_, &*event_array_.begin()\
                                            , static_cast<int>(event_array_.size()), -1);
+    LOG<<"epoll_wait return";
     for (int i = 0; i < cnt_events; ++i) {
         Channel* _channel = static_cast<Channel*>(event_array_[i].data.ptr);
         // set_revents 可以获取当前fd上的事件，将这个事件保存在channel中，在调用handle_events这个回调的

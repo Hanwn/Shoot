@@ -1,4 +1,4 @@
-
+#include "logger.h"
 #include "EventLoop.hpp"
 #include <syscall.h>
 #include <unistd.h>
@@ -35,12 +35,13 @@ EventLoop::~EventLoop() {
 
 
 void EventLoop::loop() {
+    LOG<<"loop--->5";
     quit_ = false;
     while(!quit_) {
         active_vector.clear();
         poll_->poll(active_vector);
         for (auto item : active_vector) {
-            item->handle_enents();
+            item->handle_events();
         }
         do_pending_functions();
         // TODO:处理超时请求
