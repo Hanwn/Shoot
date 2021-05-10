@@ -1,12 +1,11 @@
-#include "tools.hpp"
+#include <unistd.h>
 #include <fcntl.h>
 #include <signal.h>
-#include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <ctype.h>
 
 int socket_bind_listen(int _port) {
     int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -32,18 +31,30 @@ int socket_bind_listen(int _port) {
     return listen_fd;
     
 }
-
-void handle_for_sigpipe() { 
+int main() {
     ::signal(SIGPIPE, SIG_IGN);
-}
+    int _port = 9618;
 
-int set_non_blocking(int _fd) {
-    int flags, s;
-    flags = fcntl(_fd, F_GETFL, 0);
-    if (flags == -1) {
-        return -1;
+    int listen_fd = socket_bind_listen(_port);    
+
+    struct sockaddr_in client_addr;
+    socklen_t client_addr_len = sizeof (client_addr);
+    int client_fd = accept(listen_fd, (struct sockaddr*)&client_addr, &client_addr_len);
+    char buf[1024];
+    int ret = 0;
+    while (true) {
+        ret = read(client_fd, buf, sizeof buf);
+        if (ret == 0) {
+            break;
+        }else if (ret < 0) {
+
+        }
+        for (int i = 0; i < ret; ++i) {
+            buf[i] = toupper(buf[i]);
+        }
+        ret = ::write(client_fd, buf, ret);
     }
-    flags |= O_NONBLOCK;
-    s = fcntl(_fd, F_SETFL, flags);
+    ::close(listen_fd);
+    ::close(client_fd);
     return 0;
 }
