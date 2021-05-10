@@ -1,9 +1,7 @@
 #include "TcpServer.hpp"
-#include "tools.hpp"
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "TcpConnection.hpp"
 
 TCPServer::TCPServer(EventLoop* _loop, std::string _thread_name, int port)
     : loop_(_loop)

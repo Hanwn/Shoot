@@ -2,10 +2,10 @@
 #define TCPSERVER_H_
 
 #include "EventLoop.hpp"
-#include "tools.hpp"
 #include <memory>
 #include "logger.h"
 #include "EventLoopPool.hpp"
+#include "TcpConnection.hpp"
 
 class TCPServer {
 public:

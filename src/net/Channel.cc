@@ -1,5 +1,10 @@
 #include "Channel.hpp"
 
+const int Channel::none_event = 0;
+// QUESTION:EPOLLPRI 什么时候使用?
+const int Channel::read_event = EPOLLIN | EPOLLPRI | EPOLLET;
+const int Channel::write_event = EPOLLOUT | EPOLLET;
+
 Channel::Channel(EventLoop* _loop, int _fd) 
     : loop_(_loop)
     , fd(_fd) 

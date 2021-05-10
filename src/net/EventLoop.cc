@@ -122,3 +122,7 @@ void EventLoop::wake_up_response() {
 void EventLoop::quit() {
 
 }
+
+void EventLoop::handle_expired_time() {
+
+}

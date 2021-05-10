@@ -14,6 +14,7 @@ enum class channelStatus{
 
 // Channel 的生命周期由TCPConnection控制
 // Channel 不拥有任何资源，无需在析构函数中释放
+class EventLoop;
 class Channel {
 public:
     using callback = std::function<void()>;
@@ -79,9 +80,5 @@ private:
     callback close_handler_;
 };
 
-const int Channel::none_event = 0;
-// QUESTION:EPOLLPRI 什么时候使用?
-const int Channel::read_event = EPOLLIN | EPOLLPRI | EPOLLET;
-const int Channel::write_event = EPOLLOUT | EPOLLET;
 
 #endif

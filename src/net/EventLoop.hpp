@@ -4,8 +4,11 @@
 #include "Channel.hpp"
 #include "Epoll.hpp"
 #include "mutex_lock.h"
-
+#include <memory>
+#include <vector>
 // EventLoop 拥有一个文件描述符，需要在析构函数中释放这个文件描述符
+class Channel;
+class Epoll;
 class EventLoop{
 public:
     using callback = std::function<void()>;
