@@ -61,7 +61,7 @@ public:
     void update();
     void remove();
     // STAR: 这个函数作为一个channel的回调，非常重要
-    void handle_enents();
+    void handle_events();
 private:
     EventLoop* loop_;
     int event_;
