@@ -18,7 +18,7 @@ public:
     void new_event();
 
 private:
-    void hanle_read();
+    void handle_read();
     void handle_write();
     void handle_conn();
     void handle_err();

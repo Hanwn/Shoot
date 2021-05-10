@@ -26,8 +26,8 @@ TCPServer::~TCPServer() {
 
 void TCPServer::start() {
     LOG<<"Server is RUNNING:"<<"--->1";
-    // event_loop_pool_->set_thread_nums(4);
-    // event_loop_pool_->start(cb_);
+    event_loop_pool_->set_thread_nums(1);
+    event_loop_pool_->start(cb_);
     accpet_channel_->set_read_callback(std::bind(&TCPServer::handle_new_conn, this));
     // 将当前channel加入到loop监听中
     accpet_channel_->enable_read();
@@ -43,7 +43,7 @@ void TCPServer::handle_new_conn() {
     int _accept_fd = 0;
     while ((_accept_fd = accept(listen_fd_, (struct sockaddr *)&client_addr, &client_addr_len)) > 0) {
         EventLoop* _loop = event_loop_pool_->get_next_loop();
-        LOG<<"New Connection from" << inet_ntoa(client_addr.sin_addr)<<":"<<ntohs(client_addr.sin_port);
+        LOG<<"New Connection from " << inet_ntoa(client_addr.sin_addr)<<":"<<ntohs(client_addr.sin_port);
         if (_accept_fd >= MAXFDS) {
             ::close(_accept_fd);
             //retuen ? continue?
