@@ -16,6 +16,7 @@ EventLoopThread::~EventLoopThread() {
 }
 
 EventLoop* EventLoopThread::start_loop() {
+    // QUESTION:在这里start不会出现问题？
     thread_.start();
     EventLoop* real_loop = nullptr;
     {
