@@ -17,7 +17,7 @@ public:
 public:
     void start();
     void handle_new_conn();
-    void TCPServer::remove_conn_in_loop(std::shared_ptr<TCPConnection>& conn);
+    void remove_conn_in_loop(std::shared_ptr<TCPConnection>& conn);
     void remove_conn(const std::shared_ptr<TCPConnection>& conn);
 
 private:

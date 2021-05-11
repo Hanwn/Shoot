@@ -23,7 +23,7 @@ public:
     void new_event();
     EventLoop* get_loop();
     void destroy_conn();
-    int get_fd();
+    int get_fd() {return fd_;};
 
 private:
     void handle_read();

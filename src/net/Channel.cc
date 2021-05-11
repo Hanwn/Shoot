@@ -4,7 +4,7 @@
 const int Channel::none_event = 0;
 // QUESTION:EPOLLPRI 什么时候使用?
 const int Channel::read_event = EPOLLIN | EPOLLET;
-const int Channel::write_event = EPOLLOUT;
+const int Channel::write_event = EPOLLOUT | EPOLLOUT;
 
 Channel::Channel(EventLoop* _loop, int _fd) 
     : loop_(_loop)
@@ -51,15 +51,16 @@ void Channel::handle_events() {
     LOG<<"handle_events--->8";
     // QUESTION: EPOLLPRI?
     // QUESTION:为什么EPOLLHUP需要放在读和写的前面
-    if((revent_&EPOLLHUP) && !(revent_&EPOLLIN)) {
-        if (close_handler_) close_handler_();
-        return;
-    }
+    // if((revent_&EPOLLHUP) && !(revent_&EPOLLIN)) {
+    //    if (close_handler_) close_handler_();
+    //    return;
+    // }
     if (revent_ & (EPOLLERR)) {
         LOG<<"handle error events";
         if (error_handler_) error_handler_();
     }
-    if (revent_ & (EPOLLIN | EPOLLHUP)) {
+    if (revent_ & EPOLLIN) {
+        // EPOLLIN 可读事件，当peer关闭连接的时候也会触发EPOLLIN事件
         LOG<<"handle read events";
         if (read_handler_) read_handler_();
     }

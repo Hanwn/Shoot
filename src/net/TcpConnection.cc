@@ -34,16 +34,37 @@ void TCPConnection::handle_read() {
         // for (int i = 0; i < read_len; ++i) {
         //     std::cout<<buf[i];
         // }
+        // 需要在这里将数据读取完整，将整体分为get,post，请求
+        // 需要通过content-length判断数据是否完整
+        // 如果无法一次读取完整，则需要将已经读取的内容保存起来，然后再次读
         LOG<<"read data:"<<buf;
+
+        // 如果读取完整，则需要往对端写数据
+        handle_write();
     }else if (read_len == 0) {
+        // 说明对端关闭
         handle_close();
     }else {
+        if (errno == EINTR) {
+        
+        
+        }else if (errno == EAGAIN) {
+            // 如果读取不完整，并且出现了EAGAIN
+
+        }else{
+            handle_close();
+        }
         handle_err();
     }
 }
 
 void TCPConnection::handle_write() {
+    // 如果可以一次写完
+    
+    // 如果一次写不完，需要将channel_的EPOLLOPUT事件打开，同时将当前文件描述符注册到epoll中
 
+
+    // 写完后，将channel_的EPOLLOUT事件关闭
 }
 
 
