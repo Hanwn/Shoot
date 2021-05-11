@@ -69,13 +69,13 @@ void TCPServer::handle_new_conn() {
                 std::bind(&TCPServer::remove_conn, this, std::placeholders::_1)
                 );
 
-        // BUG:conn_ptr 被释放了
+        // DONE:conn_ptr 被释放了
         // connections_["a"] = conn_ptr;
         connections_[_accept_fd] = conn_ptr;
         _loop->run_in_loop(std::bind(&TCPConnection::new_event, conn_ptr));
         
     }
-    // TODO:new a connection
+    // DONE:new a connection
 
 
 }

@@ -11,7 +11,7 @@ void handle_for_sigpipe() ;
 
 int set_non_blocking(int _fd);
 
-enum CONNECTION_STATE{ CONNECTED = 0, DISCONNECTING, DISCONNECTED};
+enum CONNECTION_STATE{ CONNECTED = 0, CONNECTING, DISCONNECTING, DISCONNECTED};
 
 enum HTTP_METHOD {POST = 1, GET, HEAD};
 

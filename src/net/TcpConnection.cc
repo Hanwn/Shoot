@@ -6,7 +6,7 @@ TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd)
     , channel_(new Channel(loop_, _conn_fd))
     , fd_(_conn_fd)
     , err_(false)
-    , connection_state(CONNECTED)
+    , connection_state(CONNECTING)
     , http_method_(GET)
     , http_version(HTTP_11){
         channel_->set_read_callback(std::bind(&TCPConnection::handle_read, this));
@@ -14,6 +14,7 @@ TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd)
         // (std::bind(TCPConnection::handle_conn, this));
         channel_->set_close_callback(std::bind(&TCPConnection::handle_close, this));
         channel_->set_error_callback(std::bind(&TCPConnection::handle_err, this));
+        connection_state = CONNECTED;
 }
 
 
@@ -56,6 +57,7 @@ void TCPConnection::handle_err() {
 
 void TCPConnection::handle_close() {
     //assert_in_loop();
+    connection_state = DISCONNECTED;
     channel_->disalbel_all();
     std::shared_ptr<TCPConnection> from_this(shared_from_this());
     close_cb(from_this);
@@ -63,6 +65,12 @@ void TCPConnection::handle_close() {
 
 void TCPConnection::destroy_conn() {
     //TODO:
+    //assert
+    if (connection_state == CONNECTED) {
+        connection_state = DISCONNECTED;
+        channel_->disalbel_all();
+    }
+    channel_->remove();
 }
 
 void TCPConnection::new_event() {
