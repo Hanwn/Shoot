@@ -56,12 +56,15 @@ void Channel::handle_events() {
         return;
     }
     if (revent_ & (EPOLLERR)) {
+        LOG<<"handle error events";
         if (error_handler_) error_handler_();
     }
     if (revent_ & (EPOLLIN | EPOLLHUP)) {
+        LOG<<"handle read events";
         if (read_handler_) read_handler_();
     }
     if (revent_ & EPOLLOUT) {
+        LOG<<"handle write events";
         if (write_handler_) write_handler_();
     }
 }

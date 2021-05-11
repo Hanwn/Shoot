@@ -110,7 +110,9 @@ void EventLoop::do_pending_functions() {
 }
 
 void EventLoop::wake_up_cur_thread()  {
+    LOG<<"new conn wake up";
     uint64_t one = 1;
+    // BUG:write and read maybe a bug when ET
     ssize_t n = write(wake_up_fd_, (char*)(&one), sizeof one);
 }
 
