@@ -30,9 +30,10 @@ void TCPConnection::handle_read() {
     read_len = read(channel_->get_fd(), buf, sizeof buf);
     if (read_len > 0) {
         //TODO:read data
-        for (int i = 0; i < read_len; ++i) {
-            std::cout<<buf[i];
-        }
+        // for (int i = 0; i < read_len; ++i) {
+        //     std::cout<<buf[i];
+        // }
+        LOG<<"read data:"<<buf;
     }else if (read_len == 0) {
         handle_close();
     }else {
@@ -54,10 +55,21 @@ void TCPConnection::handle_err() {
 }
 
 void TCPConnection::handle_close() {
+    //assert_in_loop();
+    channel_->disalbel_all();
+    std::shared_ptr<TCPConnection> from_this(shared_from_this());
+    close_cb(from_this);
+}
 
+void TCPConnection::destroy_conn() {
+    //TODO:
 }
 
 void TCPConnection::new_event() {
     LOG<<"new conn";
     channel_->enable_read();
+}
+
+EventLoop* TCPConnection::get_loop() {
+    return loop_;
 }

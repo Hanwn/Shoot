@@ -2,6 +2,7 @@
 #define TCPSERVER_H_
 
 #include "EventLoop.hpp"
+#include <unordered_map>
 #include <memory>
 #include "logger.h"
 #include "EventLoopPool.hpp"
@@ -16,6 +17,8 @@ public:
 public:
     void start();
     void handle_new_conn();
+    void TCPServer::remove_conn_in_loop(std::shared_ptr<TCPConnection>& conn);
+    void remove_conn(const std::shared_ptr<TCPConnection>& conn);
 
 private:
     EventLoop* loop_;
@@ -27,6 +30,7 @@ private:
     std::shared_ptr<Channel> accpet_channel_;
     static const int MAXFDS = 100000;
     thread_callback cb_;
+    std::unordered_map<int, std::shared_ptr<TCPConnection>> connections_;
 };
 
 

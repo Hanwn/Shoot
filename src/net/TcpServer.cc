@@ -2,6 +2,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <functional>
+
 
 TCPServer::TCPServer(EventLoop* _loop, std::string _thread_name, int port)
     : loop_(_loop)
@@ -22,6 +24,11 @@ TCPServer::TCPServer(EventLoop* _loop, std::string _thread_name, int port)
 
 TCPServer::~TCPServer() {
     //TODO: release resource
+    for (auto& item : connections_) {
+        std::shared_ptr<TCPConnection> conn(item.second);
+        item.second.reset();
+        conn->get_loop()->run_in_loop(std::bind(&TCPConnection::destroy_conn, conn));
+    }
 }
 
 void TCPServer::start() {
@@ -55,11 +62,33 @@ void TCPServer::handle_new_conn() {
             return;
         }
 
-        std::shared_ptr<TCPConnection> conn_ptr(new TCPConnection(loop_, _accept_fd));
-        loop_->run_in_loop(std::bind(&TCPConnection::new_event, conn_ptr));
+        std::shared_ptr<TCPConnection> conn_ptr(new TCPConnection(_loop, _accept_fd));
+        // TODO:conn_ptr->set_read_callback();
+        // conn_ptr->set_read_callback();
+        conn_ptr->set_close_callback(
+                std::bind(&TCPServer::remove_conn, this, std::placeholders::_1)
+                );
+
+        // BUG:conn_ptr 被释放了
+        // connections_["a"] = conn_ptr;
+        connections_[_accept_fd] = conn_ptr;
+        _loop->run_in_loop(std::bind(&TCPConnection::new_event, conn_ptr));
         
     }
     // TODO:new a connection
 
+
+}
+
+// main thread 负责回收已经建立的连接
+// 由channel回调close_cb进行关闭
+void TCPServer::remove_conn(const std::shared_ptr<TCPConnection>& conn) {
+    loop_->run_in_loop(std::bind(&TCPServer::remove_conn_in_loop, this, conn));
+}
+
+void TCPServer::remove_conn_in_loop(std::shared_ptr<TCPConnection>& conn) {
+    size_t n = connections_.erase(conn->get_fd());
+    EventLoop* _loop = conn->get_loop();
+    _loop->queue_in_loop(std::bind(&TCPConnection::destroy_conn, conn));
 
 }
