@@ -6,6 +6,7 @@
 #include <functional>
 #include <memory>
 #include "CountDownLatch.h"
+#include <string>
 
 class Thread {
 public:

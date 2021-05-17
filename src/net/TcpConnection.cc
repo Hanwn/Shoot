@@ -97,7 +97,7 @@ void TCPConnection::handle_err() {
     body_buf += "<hr><em>Web Server</em>\n</body></html>";
 
     header_buf += "HTTP/1.1" + std::to_string(404) + "\r\n";
-    header_buf += "Content-type:text/ht,;\r\n";
+    header_buf += "Content-type:text/html\r\n";
     header_buf += "Connnection:Close\r\n";
     header_buf += "Content-Length: " + std::to_string(body_buf.size()) + "\r\n";
     header_buf += "Server: Shoot Web Server\r\n";
