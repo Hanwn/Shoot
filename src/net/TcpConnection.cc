@@ -49,6 +49,7 @@ void TCPConnection::handle_read() {
             handle_close();
         }
         std::string& _filename = http_parser->get_filename();
+        LOG<<"request file : "<<_filename;
         if (_filename.size() && _filename != "favicon.ico") {
             handle_err();
         }

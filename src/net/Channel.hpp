@@ -4,6 +4,7 @@
 #include <functional>
 #include <sys/epoll.h>
 #include "EventLoop.hpp"
+#include "logger.h"
 
 enum class channelStatus{
     NEW = 1,
@@ -32,6 +33,7 @@ public:
     }
 
     void set_error_callback(callback cb) {
+        LOG<<"channel error callback";
         error_handler_ = cb;
     }
 
