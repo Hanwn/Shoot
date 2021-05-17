@@ -9,6 +9,7 @@ set(NET_SRC
     TcpConnection.cc
     TcpServer.cc
     tools.cc
+    http_parse.cc
 )
 
 add_library(libnet ${NET_SRC})
