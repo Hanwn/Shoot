@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "logger.h"
+#include <error.h>
+#include <errno.h>
 
 const int EVENT_SUM = 4096;
 
@@ -38,7 +40,7 @@ void Epoll::epoll_del(Channel* _channel, int op) {
     event.events = _channel->get_events();
     int _fd = _channel->get_fd();
     if (::epoll_ctl(epoll_fd_, op, _fd, &event) < 0) {
-        LOG<<"EPOLL DEL ERROR";
+        LOG<<"EPOLL DEL ERROR "<<errno;
     }
 }
 
