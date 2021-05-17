@@ -1,4 +1,5 @@
 #include "http_parse.hpp"
+#include "logger.h"
 
 
 void HTTPParse::parse_body() {
@@ -6,7 +7,7 @@ void HTTPParse::parse_body() {
 }
 
 bool HTTPParse::parse_header(char* buf, int len) {
-    int idx = 0;
+    int idx = 1;
     if (buf[0] == 'G' && buf[1] == 'E'&& buf[2] == 'T') {
         this->method_ = HTTP_METHOD::GET;
         idx+=3;
@@ -23,13 +24,18 @@ bool HTTPParse::parse_header(char* buf, int len) {
         ++idx;
     }
     path_ = std::move(_path);
-    int path_idx = path_.length();
-    while (path_[path_idx] != '/') {
-        filename_ += path_[path_idx];
-        path_idx--;
+    if (path_.empty()) {
+        filename_ = "";
+    }else{
+        int path_idx = path_.length();
+        while (path_[path_idx] != '/') {
+            filename_ += path_[path_idx];
+            path_idx--;
+        }
+        filename_.reserve();
     }
-    filename_.reserve();
-    ++idx;        
+    ++idx;
+    // LOG<<"--------> buffer ------>"<<buf[idx]<<buf[idx + 1]<<buf[idx + 2]<<buf[idx + 3];
     if (idx + 3 < len) {
         if (buf[idx] != 'H' || buf[idx + 1] != 'T' || buf[idx + 2] != 'T' || buf[idx + 3] != 'P') {
             // 说明不是一个http协议
@@ -45,9 +51,9 @@ bool HTTPParse::parse_header(char* buf, int len) {
         }
     }
     //TODO:解析全部的http头文件
-    while (idx < len) {
+    //while (idx < len) {
 
-    }
+    //}
     return true;
 
 
