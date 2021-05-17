@@ -35,6 +35,7 @@ private:
 private:
     EventLoop* loop_;
     std::shared_ptr<Channel> channel_;
+        std::shared_ptr<HTTPParse> http_parser;
     int fd_;
     std::string in_buf_;
     std::string out_buf_;

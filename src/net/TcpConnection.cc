@@ -2,16 +2,21 @@
 #include "logger.h"
 #include "http_parse.hpp"
 
+char favicon[] = {};
+
+
+
 TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd) 
     : loop_(_loop)
     , channel_(new Channel(loop_, _conn_fd))
+    , http_parser(new HTTPParse())
     , fd_(_conn_fd)
     , err_(false)
     , connection_state(CONNECTING)
     , http_method_(GET)
     , http_version(HTTP_11){
         channel_->set_read_callback(std::bind(&TCPConnection::handle_read, this));
-        channel_->set_write_callback(std::bind(&TCPConnection::handle_write, this));
+        // channel_->set_write_callback(std::bind(&TCPConnection::handle_write, this));
         // (std::bind(TCPConnection::handle_conn, this));
         channel_->set_close_callback(std::bind(&TCPConnection::handle_close, this));
         channel_->set_error_callback(std::bind(&TCPConnection::handle_err, this));
@@ -37,17 +42,24 @@ void TCPConnection::handle_read() {
         //     std::cout<<buf[i];
         // }
         // 需要在这里将数据读取完整，将整体分为get,post，请求
-        LOG<<"read data:"<<buf;
+        // LOG<<"read data:"<<buf;
 
-        std::shared_ptr<HTTPParse> http_parser(new HTTPParse());
-        http_parser->parse_header();
+        if (!http_parser->parse_header(buf, ::strlen(buf)) ) {
+            // 对方发来的不是一个http请求，可以立即关闭
+            handle_close();
+        }
+        std::string& _filename = http_parser->get_filename();
+        if (_filename.size() && _filename != "favicon.ico") {
+            handle_err();
+        }
         // if method is post
         if (http_parser->get_method() == HTTP_METHOD::POST) {
             http_parser->parse_body();
         }
         // 读取完整，则需要往对端写数据
         handle_write();
-        handle_err();
+        //TODO:加入到定时器中
+        // handle_err();
         handle_close();
     }else if (read_len == 0) {
         // 说明对端关闭
@@ -69,11 +81,39 @@ void TCPConnection::handle_read() {
 
 void TCPConnection::handle_write() {
     // header
-
+    std::string  header_buf;
+    // char output_buf[4096];
+    // ::memset(output_buf, 0, sizeof output_buf);
+    header_buf += "HTTP/1.1 200 ok\r\n";
     // body
-    
+    std::string content_buf;
     // HEAD
-
+    if (http_parser->get_filename() == "favicon.ico") {
+        header_buf += "Content-Type: image/png\r\n";
+        header_buf += "Contetn-Length:" + std::to_string(sizeof favicon) + "\r\n";
+        header_buf += "Shoot Server\r\n";
+        header_buf += "\r\n";
+        out_buf_ += header_buf;
+        out_buf_ += std::string(favicon, favicon + sizeof favicon);
+    }else {
+        std::string body_buf = " \
+        <html>\
+            <title>Shoot Web Server</title>\
+            <body>\
+                <h1>Shoot Web Server</h1>\
+                <div>\
+                    Shoot web server is a web server in linux. This projet is in the <a href=\"https//www.github.com/Hanwn/Shoot.com\">repo</a>.\
+                </div>\
+            </body>\
+        </html>";
+        header_buf += "Content-Type: text/html";
+        // TODO:connection is alive;
+        header_buf += "Connection:Close\r\n";
+        header_buf += "Content-Length:" + std::to_string(body_buf.size()) + "\r\n";
+        header_buf += "Server: Shoot Web server\r\n";
+        header_buf += "\r\n";
+        content_buf = header_buf + body_buf;
+    }
     // verseion 1 如果可以一次写完
     
     // version 2 如果一次写不完，需要将channel_的EPOLLOPUT事件打开，同时将当前文件描述符注册到epoll中
@@ -122,6 +162,7 @@ void TCPConnection::handle_close() {
 void TCPConnection::destroy_conn() {
     //TODO:
     //assert
+    LOG<<"destory connection";
     if (connection_state == CONNECTED) {
         connection_state = DISCONNECTED;
         channel_->disalbel_all();

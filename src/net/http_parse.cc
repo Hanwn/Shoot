@@ -5,7 +5,51 @@ void HTTPParse::parse_body() {
 
 }
 
-void HTTPParse::parse_header() {
+bool HTTPParse::parse_header(char* buf, int len) {
+    int idx = 0;
+    if (buf[0] == 'G' && buf[1] == 'E'&& buf[2] == 'T') {
+        this->method_ = HTTP_METHOD::GET;
+        idx+=3;
+    }else if(buf[idx] == 'P'){
+        this->method_ = HTTP_METHOD::POST;
+        idx+=4;
+    }else {
+        //TODO:更多的请求方式
+        return false;
+    }
+    std::string _path;
+    while (idx < len && buf[idx] != ' ') {
+        _path += buf[idx];
+        ++idx;
+    }
+    path_ = std::move(_path);
+    int path_idx = path_.length();
+    while (path_[path_idx] != '/') {
+        filename_ += path_[path_idx];
+        path_idx--;
+    }
+    filename_.reserve();
+    ++idx;        
+    if (idx + 3 < len) {
+        if (buf[idx] != 'H' || buf[idx + 1] != 'T' || buf[idx + 2] != 'T' || buf[idx + 3] != 'P') {
+            // 说明不是一个http协议
+            return false;
+        }
+    }
+    idx+=7;
+    if (idx < len) {
+        if (buf[idx] == '0') {
+            version = HTTP_VERSION::HTTP_10;
+        }else {
+            version = HTTP_VERSION::HTTP_11;
+        }
+    }
+    //TODO:解析全部的http头文件
+    while (idx < len) {
+
+    }
+    return true;
+
 
 // GET / HTTP/1.1
 // Host: 127.0.0.1:9618
