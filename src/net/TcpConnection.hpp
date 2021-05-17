@@ -7,6 +7,7 @@
 #include <iostream>
 #include <unistd.h>
 #include "tools.hpp"
+#include "http_parse.hpp"
 
 
 class TCPConnection : public std::enable_shared_from_this<TCPConnection>{
