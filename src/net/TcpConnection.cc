@@ -1,5 +1,6 @@
 #include "TcpConnection.hpp"
 #include "logger.h"
+#include "http_parse.hpp"
 
 TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd) 
     : loop_(_loop)
@@ -28,6 +29,7 @@ void TCPConnection::handle_read() {
     ssize_t read_len;
     char buf[1024];
     // ssize_t read_len = read(channel_->get_fd());
+    // STAR:默认对于请求操作是可以一次读完的，即确保可以一次读完
     read_len = read(channel_->get_fd(), buf, sizeof buf);
     if (read_len > 0) {
         //TODO:read data
@@ -35,22 +37,29 @@ void TCPConnection::handle_read() {
         //     std::cout<<buf[i];
         // }
         // 需要在这里将数据读取完整，将整体分为get,post，请求
-        // 需要通过content-length判断数据是否完整
-        // 如果无法一次读取完整，则需要将已经读取的内容保存起来，然后再次读
         LOG<<"read data:"<<buf;
 
-        // 如果读取完整，则需要往对端写数据
+        std::shared_ptr<HTTPParse> http_parser(new HTTPParse());
+        http_parser->parse_header();
+        // if method is post
+        if (http_parser->get_method() == HTTP_METHOD::POST) {
+            http_parser->parse_body();
+        }
+        // 读取完整，则需要往对端写数据
         handle_write();
+        handle_err();
+        handle_close();
     }else if (read_len == 0) {
         // 说明对端关闭
         handle_close();
     }else {
         if (errno == EINTR) {
-        
-        
+            // 当前系统调用的时间较长，但是信号(signal)会打断时间较长的系统调用
+            // 解决方法：应该重启当前事件，所以本项目将当前fd再次加入到epoll中进行监听
+            loop_->run_in_loop(std::bind(&Channel::enable_read, channel_));
         }else if (errno == EAGAIN) {
-            // 如果读取不完整，并且出现了EAGAIN
-
+            // 出现了EAGAIN，需要重启当前读事件
+            loop_->run_in_loop(std::bind(&Channel::enable_read, channel_));
         }else{
             handle_close();
         }
@@ -59,9 +68,16 @@ void TCPConnection::handle_read() {
 }
 
 void TCPConnection::handle_write() {
-    // 如果可以一次写完
+    // header
+
+    // body
     
-    // 如果一次写不完，需要将channel_的EPOLLOPUT事件打开，同时将当前文件描述符注册到epoll中
+    // HEAD
+
+    // verseion 1 如果可以一次写完
+    
+    // version 2 如果一次写不完，需要将channel_的EPOLLOPUT事件打开，同时将当前文件描述符注册到epoll中
+    
 
 
     // 写完后，将channel_的EPOLLOUT事件关闭
@@ -73,7 +89,26 @@ void TCPConnection::handle_conn() {
 }
 
 void TCPConnection::handle_err() {
+    std::string body_buf,header_buf;
+    std::string send_buf;
+    body_buf += "<html><title> error </title>";
+    body_buf += "<body bgcolor=\"ffffff\">";
+    body_buf += std::to_string(404);
+    body_buf += "<hr><em>Web Server</em>\n</body></html>";
 
+    header_buf += "HTTP/1.1" + std::to_string(404) + "\r\n";
+    header_buf += "Content-type:text/ht,;\r\n";
+    header_buf += "Connnection:Close\r\n";
+    header_buf += "Content-Length: " + std::to_string(body_buf.size()) + "\r\n";
+    header_buf += "Server: Shoot Web Server\r\n";
+    header_buf += "\r\n";
+
+    send_buf = header_buf + body_buf;
+    char send_buffer[4096];
+
+    sprintf(send_buffer, "%s", send_buf.c_str());
+    //TODO: write_back() function
+    ::write(this->fd_, send_buffer, strlen(send_buffer));
 }
 
 void TCPConnection::handle_close() {
