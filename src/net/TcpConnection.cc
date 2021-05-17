@@ -33,6 +33,7 @@ void TCPConnection::handle_read() {
     LOG<<"handle_read";
     ssize_t read_len;
     char buf[1024];
+    ::memset(buf, 0, sizeof buf);
     // ssize_t read_len = read(channel_->get_fd());
     // STAR:默认对于请求操作是可以一次读完的，即确保可以一次读完
     read_len = read(channel_->get_fd(), buf, sizeof buf);
@@ -46,10 +47,12 @@ void TCPConnection::handle_read() {
 
         if (!http_parser->parse_header(buf, ::strlen(buf)) ) {
             // 对方发来的不是一个http请求，可以立即关闭
+            LOG<<"close connection : http->parser->header";
             handle_close();
         }
         std::string& _filename = http_parser->get_filename();
-        LOG<<"request file : "<<_filename;
+        // LOG<<"request file : "<<_filename;
+        // LOG<<"request data:"<< buf;
         if (_filename.size() && _filename != "favicon.ico") {
             handle_err();
         }
