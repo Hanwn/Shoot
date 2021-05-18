@@ -8,12 +8,17 @@
 #include <unistd.h>
 #include "tools.hpp"
 #include "http_parse.hpp"
+#include "TimerGuard.hpp"
+#include "Channel.hpp"
+#include "EventLoop.hpp"
 
+class EventLoop;
+class Channel;
 
 class TCPConnection : public std::enable_shared_from_this<TCPConnection>{
 public:
     using close_callback = std::function<void(std::shared_ptr<TCPConnection>)>;
-    TCPConnection(EventLoop* _loop, int _conn_fd);
+    TCPConnection(EventLoop* _loop, int _conn_fd, std::shared_ptr<TimerGuard<TCPConnection>>);
     ~TCPConnection();
 
 public:
@@ -37,6 +42,7 @@ private:
     EventLoop* loop_;
     std::shared_ptr<Channel> channel_;
         std::shared_ptr<HTTPParse> http_parser;
+    std::weak_ptr<TimerGuard<TCPConnection>> timer_;
     int fd_;
     std::string in_buf_;
     std::string out_buf_;

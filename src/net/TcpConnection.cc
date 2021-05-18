@@ -6,9 +6,10 @@ char favicon[] = {};
 
 
 
-TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd) 
+TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd, std::shared_ptr<TimerGuard<TCPConnection>> _timer)
     : loop_(_loop)
     , channel_(new Channel(loop_, _conn_fd))
+    , timer_(_timer)
     , http_parser(new HTTPParse())
     , fd_(_conn_fd)
     , err_(false)
@@ -25,6 +26,7 @@ TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd)
 
 
 TCPConnection::~TCPConnection() {
+    handle_close();
     ::close(fd_);
 }
 
@@ -54,6 +56,7 @@ void TCPConnection::handle_read() {
         // LOG<<"request file : "<<_filename;
         // LOG<<"request data:"<< buf;
         if (_filename.size() && _filename != "favicon.ico") {
+            LOG<<"req data : favicon and filename"<<_filename;
             handle_err();
         }
         // if method is post
@@ -64,7 +67,7 @@ void TCPConnection::handle_read() {
         handle_write();
         //TODO:加入到定时器中
         // handle_err();
-        handle_close();
+        // handle_close();
     }else if (read_len == 0) {
         // 说明对端关闭
         handle_close();
@@ -125,6 +128,12 @@ void TCPConnection::handle_write() {
 
 
     // 写完后，将channel_的EPOLLOUT事件关闭
+
+    // 再次加入定时器
+    {
+        auto tmp_timer = timer_.lock();
+        tmp_timer->add_time_node(shared_from_this(),20);
+    }
 }
 
 
@@ -176,6 +185,9 @@ void TCPConnection::destroy_conn() {
 
 void TCPConnection::new_event() {
     LOG<<"new conn";
+    // 加入定时器
+    auto tmp_timer = timer_.lock();
+    tmp_timer->add_time_node(shared_from_this(), 20);
     channel_->enable_read();
 }
 

@@ -5,7 +5,12 @@
 #include "Epoll.hpp"
 #include "mutex_lock.h"
 #include <memory>
+#include "TimerGuard.hpp"
 #include <vector>
+#include "TcpConnection.hpp"
+
+class TCPConnection;
+
 // EventLoop 拥有一个文件描述符，需要在析构函数中释放这个文件描述符
 class Channel;
 class Epoll;
@@ -32,6 +37,7 @@ public:
     void wake_up_cur_thread();
     void wake_up_response();
     void quit();
+    std::shared_ptr<TimerGuard<TCPConnection>> get_timer_();
 private:
     void handle_expired_time();
 
@@ -45,6 +51,7 @@ private:
     int wake_up_fd_;
     std::shared_ptr<Channel> wake_up_channel_;
     bool quit_;
+    std::shared_ptr<TimerGuard<TCPConnection>> timer_;
 };
 
 

@@ -15,7 +15,7 @@ set(NET_SRC
 add_library(libnet ${NET_SRC})
 
 # target_link_libraries(libnet pthread rt)
-target_link_libraries(libnet PUBLIC libLOG)
+target_link_libraries(libnet PUBLIC libLOG timer)
 target_include_directories(libnet PUBLIC ./)
 
 add_subdirectory(test)

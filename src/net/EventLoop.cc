@@ -18,6 +18,7 @@ EventLoop::EventLoop()
     , wake_up_fd_(create_eventfd())
     , wake_up_channel_(new Channel(this, wake_up_fd_))
     , quit_(true)
+    , timer_(new TimerGuard<TCPConnection>)
     {
         // wake_up_channel_->set_events(EPOLLIN | EPOLLET);
         wake_up_channel_->set_read_callback(std::bind(&EventLoop::wake_up_response, this));
@@ -127,5 +128,10 @@ void EventLoop::quit() {
 }
 
 void EventLoop::handle_expired_time() {
+    this->timer_->handle_overtime();
+}
 
+
+std::shared_ptr<TimerGuard<TCPConnection>> EventLoop::get_timer_() {
+    return this->timer_;
 }

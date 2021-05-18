@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <functional>
+#include "TimerGuard.hpp"
 
 
 TCPServer::TCPServer(EventLoop* _loop, std::string _thread_name, int port)
@@ -61,8 +62,8 @@ void TCPServer::handle_new_conn() {
             LOG<<"Set non blocking io failed";
             return;
         }
-
-        std::shared_ptr<TCPConnection> conn_ptr(new TCPConnection(_loop, _accept_fd));
+        std::shared_ptr<TimerGuard<TCPConnection>> _timer = loop_->get_timer_();
+        std::shared_ptr<TCPConnection> conn_ptr(new TCPConnection(_loop, _accept_fd, _timer));
         // TODO:conn_ptr->set_read_callback();
         // conn_ptr->set_read_callback();
         conn_ptr->set_close_callback(
