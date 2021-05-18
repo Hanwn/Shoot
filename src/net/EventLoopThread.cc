@@ -18,7 +18,7 @@ EventLoopThread::~EventLoopThread() {
 
 EventLoop* EventLoopThread::start_loop() {
     // QUESTION:在这里start不会出现问题？
-    LOG<<"start_loop--->3";
+    // LOG<<"start_loop--->3";
     thread_.start();
     EventLoop* real_loop = nullptr;
     {
@@ -33,7 +33,7 @@ EventLoop* EventLoopThread::start_loop() {
 }
 
 void EventLoopThread::thread_func() {
-    LOG<<"thread_func--->4";
+    // LOG<<"thread_func--->4";
     EventLoop loop;
     if (callback_) {
         callback_(&loop);

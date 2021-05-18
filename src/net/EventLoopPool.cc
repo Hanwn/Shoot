@@ -13,7 +13,7 @@ EventLoopPool::EventLoopPool (EventLoop* _base_loop, const std::string& name)
 
 void EventLoopPool::start(const thread_callback cb) {
     // assert_in_loop;
-    LOG<<"EventLoopPool--->2";
+    // LOG<<"EventLoopPool--->2";
     started_ = true;
     for (int i = 0; i < thread_num_; ++i) {
         char buf[name_.size() + 32];

@@ -48,7 +48,7 @@ void Channel::update() {
 }
 
 void Channel::handle_events() {
-    LOG<<"handle_events--->8";
+    // LOG<<"handle_events--->8";
     // QUESTION: EPOLLPRI?
     // QUESTION:为什么EPOLLHUP需要放在读和写的前面
     // if((revent_&EPOLLHUP) && !(revent_&EPOLLIN)) {
@@ -56,16 +56,16 @@ void Channel::handle_events() {
     //    return;
     // }
     if (revent_ & (EPOLLERR)) {
-        LOG<<"handle error events";
+        // LOG<<"handle error events";
         if (error_handler_) error_handler_();
     }
     if (revent_ & EPOLLIN) {
         // EPOLLIN 可读事件，当peer关闭连接的时候也会触发EPOLLIN事件
-        LOG<<"handle read events";
+        // LOG<<"handle read events";
         if (read_handler_) read_handler_();
     }
     if (revent_ & EPOLLOUT) {
-        LOG<<"handle write events";
+        // LOG<<"handle write events";
         if (write_handler_) write_handler_();
     }
 }

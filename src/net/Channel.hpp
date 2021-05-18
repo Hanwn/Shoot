@@ -33,7 +33,7 @@ public:
     }
 
     void set_error_callback(callback cb) {
-        LOG<<"channel error callback";
+        // LOG<<"channel error callback";
         error_handler_ = cb;
     }
 
