@@ -26,13 +26,14 @@ TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd, std::shared_ptr<Tim
 
 
 TCPConnection::~TCPConnection() {
-    handle_close();
+    // LOG<<"::close connection";
+    // handle_close();
     ::close(fd_);
 }
 
 
 void TCPConnection::handle_read() {
-    LOG<<"handle_read";
+    // LOG<<"handle_read";
     ssize_t read_len;
     char buf[1024];
     ::memset(buf, 0, sizeof buf);
@@ -47,22 +48,25 @@ void TCPConnection::handle_read() {
         // 需要在这里将数据读取完整，将整体分为get,post，请求
         // LOG<<"read data:"<<buf;
 
+        /*
         if (!http_parser->parse_header(buf, ::strlen(buf)) ) {
             // 对方发来的不是一个http请求，可以立即关闭
-            LOG<<"close connection : http->parser->header";
+            // LOG<<"close connection : http->parser->header";
             handle_close();
         }
         std::string& _filename = http_parser->get_filename();
         // LOG<<"request file : "<<_filename;
         // LOG<<"request data:"<< buf;
         if (_filename.size() && _filename != "favicon.ico") {
-            LOG<<"req data : favicon and filename"<<_filename;
+            // LOG<<"req data : favicon and filename"<<_filename;
             handle_err();
         }
         // if method is post
         if (http_parser->get_method() == HTTP_METHOD::POST) {
             http_parser->parse_body();
         }
+        */
+
         // 读取完整，则需要往对端写数据
         handle_write();
         //TODO:加入到定时器中
@@ -70,6 +74,7 @@ void TCPConnection::handle_read() {
         // handle_close();
     }else if (read_len == 0) {
         // 说明对端关闭
+        LOG<<"peer close";
         handle_close();
     }else {
         if (errno == EINTR) {
@@ -92,6 +97,7 @@ void TCPConnection::handle_write() {
     // char output_buf[4096];
     // ::memset(output_buf, 0, sizeof output_buf);
     header_buf += "HTTP/1.1 200 ok\r\n";
+    header_buf += "Connection:Close\r\n";
     // body
     std::string content_buf;
     // HEAD
@@ -107,22 +113,26 @@ void TCPConnection::handle_write() {
         <html>\
             <title>Shoot Web Server</title>\
             <body>\
-                <h1>Shoot Web Server</h1>\
-                <div>\
+                <h1 align=\"center\">Shoot Web Server</h1>\
+                <div align=\"center\">\
                     Shoot web server is a web server in linux. This projet is in the <a href=\"https//www.github.com/Hanwn/Shoot.com\">repo</a>.\
                 </div>\
             </body>\
         </html>";
-        header_buf += "Content-Type: text/html";
+        header_buf += "Content-Type: text/html\r\n";
         // TODO:connection is alive;
-        header_buf += "Connection:Close\r\n";
+        // header_buf += "Connection: Keep-Alive\r\nKeep-Alive: timeout=6\r\n";
         header_buf += "Content-Length:" + std::to_string(body_buf.size()) + "\r\n";
         header_buf += "Server: Shoot Web server\r\n";
         header_buf += "\r\n";
         content_buf = header_buf + body_buf;
     }
     // verseion 1 如果可以一次写完
-    
+    char send_buf[4096];
+    ::memset(send_buf, 0, sizeof send_buf);
+    ::sprintf(send_buf, "%s", content_buf.c_str());
+    //TODO: write_back() function
+    ::write(this->fd_, send_buf, ::strlen(send_buf));
     // version 2 如果一次写不完，需要将channel_的EPOLLOPUT事件打开，同时将当前文件描述符注册到epoll中
     
 
@@ -130,10 +140,12 @@ void TCPConnection::handle_write() {
     // 写完后，将channel_的EPOLLOUT事件关闭
 
     // 再次加入定时器
+    /*
     {
         auto tmp_timer = timer_.lock();
         tmp_timer->add_time_node(shared_from_this(),20);
     }
+    */
 }
 
 
@@ -169,13 +181,15 @@ void TCPConnection::handle_close() {
     connection_state = DISCONNECTED;
     channel_->disalbel_all();
     std::shared_ptr<TCPConnection> from_this(shared_from_this());
-    close_cb(from_this);
+    if (from_this) {
+        close_cb(from_this);
+    }
 }
 
 void TCPConnection::destroy_conn() {
     //TODO:
     //assert
-    LOG<<"destory connection";
+    // LOG<<"destory connection";
     if (connection_state == CONNECTED) {
         connection_state = DISCONNECTED;
         channel_->disalbel_all();
@@ -184,10 +198,10 @@ void TCPConnection::destroy_conn() {
 }
 
 void TCPConnection::new_event() {
-    LOG<<"new conn";
+    // LOG<<"new conn";
     // 加入定时器
     auto tmp_timer = timer_.lock();
-    tmp_timer->add_time_node(shared_from_this(), 20);
+    // tmp_timer->add_time_node(shared_from_this(), 20);
     channel_->enable_read();
 }
 

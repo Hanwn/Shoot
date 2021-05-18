@@ -8,6 +8,7 @@
 template<typename T>
 class TimerNode{
 public:
+    // timeout 单位为毫秒
     TimerNode(std::shared_ptr<T> _data, int timeout) 
         : data_(_data)
         , is_deleted_(false) {
@@ -19,7 +20,7 @@ public:
 
     }    
     ~TimerNode()  {
-        std::cout<<"~TimerNode()"<<std::endl;
+        // std::cout<<"~TimerNode()"<<std::endl;
     };
 public:
     void set_deleted() { is_deleted_ = true; }
