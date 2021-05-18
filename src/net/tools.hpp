@@ -4,12 +4,25 @@
 #include <signal.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <iostream>
+#include <string>
+
 
 int socket_bind_listen(int _port) ;
 
 void handle_for_sigpipe() ;
 
 int set_non_blocking(int _fd);
+
+int readn(int fd, void *, int);
+
+int readn(int, std::string&, bool&);
+
+int readn(int, std::string&);
+
+int writen(int, void*, int);
+
+int writen(int, std::string&);
 
 enum CONNECTION_STATE{ CONNECTED = 0, CONNECTING, DISCONNECTING, DISCONNECTED};
 
