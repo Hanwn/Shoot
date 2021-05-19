@@ -77,18 +77,9 @@ void TCPConnection::handle_read() {
         LOG<<"peer close";
         handle_close();
     }else {
-        if (errno == EINTR) {
-            // 当前系统调用的时间较长，但是信号(signal)会打断时间较长的系统调用
-            // 解决方法：应该重启当前事件，所以本项目将当前fd再次加入到epoll中进行监听
-            loop_->run_in_loop(std::bind(&Channel::enable_read, channel_));
-        }else if (errno == EAGAIN) {
-            // 出现了EAGAIN，需要重启当前读事件
-            loop_->run_in_loop(std::bind(&Channel::enable_read, channel_));
-        }else{
-            handle_close();
-        }
-        handle_err();
+        handle_close();
     }
+    // handle_close();
 }
 
 void TCPConnection::handle_write() {

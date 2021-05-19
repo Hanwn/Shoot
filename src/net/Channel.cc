@@ -3,8 +3,8 @@
 
 const int Channel::none_event = 0;
 // QUESTION:EPOLLPRI 什么时候使用?
-const int Channel::read_event = EPOLLIN | EPOLLET;
-const int Channel::write_event = EPOLLOUT | EPOLLOUT;
+const int Channel::read_event = EPOLLIN;
+const int Channel::write_event = EPOLLOUT;
 
 Channel::Channel(EventLoop* _loop, int _fd) 
     : loop_(_loop)
