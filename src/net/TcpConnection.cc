@@ -1,6 +1,7 @@
 #include "TcpConnection.hpp"
 #include "logger.h"
 #include "http_parse.hpp"
+#include <sys/syscall.h>
 
 char favicon[] = {};
 
@@ -34,51 +35,31 @@ TCPConnection::~TCPConnection() {
 
 void TCPConnection::handle_read() {
     // LOG<<"handle_read";
+    // LOG<<static_cast<int>(syscall(SYS_gettid))<<"--->17";
     ssize_t read_len;
-    char buf[1024];
+    char buf[4096];
     ::memset(buf, 0, sizeof buf);
     // ssize_t read_len = read(channel_->get_fd());
     // STAR:默认对于请求操作是可以一次读完的，即确保可以一次读完
     read_len = read(channel_->get_fd(), buf, sizeof buf);
     if (read_len > 0) {
         //TODO:read data
-        // for (int i = 0; i < read_len; ++i) {
-        //     std::cout<<buf[i];
-        // }
-        // 需要在这里将数据读取完整，将整体分为get,post，请求
-        // LOG<<"read data:"<<buf;
-
-        /*
-        if (!http_parser->parse_header(buf, ::strlen(buf)) ) {
-            // 对方发来的不是一个http请求，可以立即关闭
-            // LOG<<"close connection : http->parser->header";
-            handle_close();
-        }
-        std::string& _filename = http_parser->get_filename();
-        // LOG<<"request file : "<<_filename;
-        // LOG<<"request data:"<< buf;
-        if (_filename.size() && _filename != "favicon.ico") {
-            // LOG<<"req data : favicon and filename"<<_filename;
-            handle_err();
-        }
-        // if method is post
-        if (http_parser->get_method() == HTTP_METHOD::POST) {
-            http_parser->parse_body();
-        }
-        */
-
         // 读取完整，则需要往对端写数据
-        handle_write();
+        handle_err();
+        // LOG<<buf;
         //TODO:加入到定时器中
         // handle_err();
         // handle_close();
-    }else if (read_len == 0) {
+        channel_->enable_read();
+    }else if (read_len == 0){
         // 说明对端关闭
-        LOG<<"peer close";
+        LOG<<"peer close "<<static_cast<int>(syscall(SYS_gettid));
         handle_close();
+        return;
     }else {
-        handle_close();
+        handle_err();
     }
+        handle_close();
     // handle_close();
 }
 
@@ -87,8 +68,9 @@ void TCPConnection::handle_write() {
     std::string  header_buf;
     // char output_buf[4096];
     // ::memset(output_buf, 0, sizeof output_buf);
-    header_buf += "HTTP/1.1 200 ok\r\n";
+    header_buf += "HTTP/1.0 200 ok\r\n";
     header_buf += "Connection:Close\r\n";
+    // header_buf += "Connection:Keep-alive\r\n";
     // body
     std::string content_buf;
     // HEAD
@@ -145,16 +127,18 @@ void TCPConnection::handle_conn() {
 }
 
 void TCPConnection::handle_err() {
+    // LOG<<static_cast<int>(syscall(SYS_gettid))<<"--->18";
     std::string body_buf,header_buf;
     std::string send_buf;
     body_buf += "<html><title> error </title>";
     body_buf += "<body bgcolor=\"ffffff\">";
-    body_buf += std::to_string(404);
+    body_buf += std::to_string(200);
     body_buf += "<hr><em>Web Server</em>\n</body></html>";
 
-    header_buf += "HTTP/1.1" + std::to_string(404) + "\r\n";
-    header_buf += "Content-type:text/html\r\n";
-    header_buf += "Connnection:Close\r\n";
+    header_buf += "HTTP/1.0 200 ok\r\n";
+    // header_buf += "HTTP/1.0 " + std::to_string(404) + " Not Found!" + "\r\n";
+    header_buf += "Content-type:text/plain\r\n";
+    header_buf += "Connection:Close\r\n";
     header_buf += "Content-Length: " + std::to_string(body_buf.size()) + "\r\n";
     header_buf += "Server: Shoot Web Server\r\n";
     header_buf += "\r\n";
@@ -169,6 +153,7 @@ void TCPConnection::handle_err() {
 
 void TCPConnection::handle_close() {
     //assert_in_loop();
+    // LOG<<static_cast<int>(syscall(SYS_gettid))<<"--->19";
     connection_state = DISCONNECTED;
     channel_->disalbel_all();
     std::shared_ptr<TCPConnection> from_this(shared_from_this());
@@ -191,6 +176,7 @@ void TCPConnection::destroy_conn() {
 void TCPConnection::new_event() {
     // LOG<<"new conn";
     // 加入定时器
+        // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->16";
     auto tmp_timer = timer_.lock();
     // tmp_timer->add_time_node(shared_from_this(), 20);
     channel_->enable_read();

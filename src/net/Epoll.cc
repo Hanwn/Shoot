@@ -6,6 +6,7 @@
 #include "logger.h"
 #include <error.h>
 #include <errno.h>
+#include <sys/syscall.h>
 
 const int EVENT_SUM = 4096;
 
@@ -21,6 +22,7 @@ Epoll::~Epoll() {
 }
 
 void Epoll::epoll_add(Channel* _channel, int op) {
+    // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->8";
     struct epoll_event event;
     ::memset(&event, 0, sizeof event);
     event.data.ptr = _channel;
@@ -60,6 +62,7 @@ void Epoll::epoll_mod(Channel* _channel, int op) {
 
 void Epoll::poll(channel_vector& v) {
     // LOG<<"poll--->7";
+    // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->10";
     int cnt_events = ::epoll_wait(epoll_fd_, &*event_array_.begin()\
                                            , static_cast<int>(event_array_.size()), -1);
     // LOG<<"epoll_wait return";

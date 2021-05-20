@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <functional>
 #include "TimerGuard.hpp"
+#include <sys/syscall.h>
 
 
 TCPServer::TCPServer(EventLoop* _loop, std::string _thread_name, int port)
@@ -34,6 +35,7 @@ TCPServer::~TCPServer() {
 
 void TCPServer::start() {
     // LOG<<"Server is RUNNING:"<<"--->1";
+    // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->1";
     event_loop_pool_->set_thread_nums(4);
     event_loop_pool_->start(cb_);
     accpet_channel_->set_read_callback(std::bind(&TCPServer::handle_new_conn, this));
@@ -45,17 +47,17 @@ void TCPServer::start() {
 
 void TCPServer::handle_new_conn() {
     // LOG<<"handle_new_conn--->9";
+        // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->15";
     struct sockaddr_in client_addr;
     ::memset(&client_addr, 0, sizeof(struct sockaddr_in));
     socklen_t client_addr_len = sizeof (client_addr);
     int _accept_fd = 0;
-    while ((_accept_fd = accept(listen_fd_, (struct sockaddr *)&client_addr, &client_addr_len)) > 0) {
+    if ((_accept_fd = accept(listen_fd_, (struct sockaddr *)&client_addr, &client_addr_len)) > 0) {
         EventLoop* _loop = event_loop_pool_->get_next_loop();
         // LOG<<"New Connection from " << inet_ntoa(client_addr.sin_addr)<<":"<<ntohs(client_addr.sin_port);
         if (_accept_fd >= MAXFDS) {
             ::close(_accept_fd);
             //retuen ? continue?
-            continue;
         }
     
         if (set_non_blocking(_accept_fd) < 0) {
@@ -76,9 +78,8 @@ void TCPServer::handle_new_conn() {
         _loop->run_in_loop(std::bind(&TCPConnection::new_event, conn_ptr));
         
     }
+    accpet_channel_->enable_read();
     // DONE:new a connection
-
-
 }
 
 // main thread 负责回收已经建立的连接

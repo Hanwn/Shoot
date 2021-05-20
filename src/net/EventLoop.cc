@@ -37,6 +37,7 @@ EventLoop::~EventLoop() {
 
 void EventLoop::loop() {
     // LOG<<"loop--->5";
+    // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->9";
     quit_ = false;
     while(!quit_) {
         active_vector.clear();
@@ -46,7 +47,7 @@ void EventLoop::loop() {
         }
         do_pending_functions();
         // TODO:处理超时请求
-        handle_expired_time();
+        // handle_expired_time();
     }
 }
 
@@ -54,6 +55,7 @@ void EventLoop::loop() {
 void EventLoop::update_channel(Channel* _channel) {
     // 函数调用，分别负责epoll_add,epoll_del,epoll_mod
     // 要从_channel中获取当前channel感兴趣的事件
+    // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->7";
     channelStatus _status = _channel->get_status();
     // QUESTION:为什么要将DEL的fd加入到epoll中？，此外，什么情况会发生一个文件描述符会被加入两次的情况
     if (_status == channelStatus::NEW || _status == channelStatus::DEL) {
@@ -120,6 +122,7 @@ void EventLoop::wake_up_cur_thread()  {
 void EventLoop::wake_up_response() {
     uint64_t one = 1;
     ssize_t n = read(wake_up_fd_, &one, sizeof one);
+    wake_up_channel_->enable_read();
 }
 
 //TODO:finish quit function
