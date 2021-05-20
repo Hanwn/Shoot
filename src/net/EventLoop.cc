@@ -3,6 +3,7 @@
 #include <syscall.h>
 #include <unistd.h>
 #include <sys/eventfd.h>
+#include "TcpConnection.hpp"
 
 // 使用eventfd的读写实现线程唤醒的目的
 int create_eventfd() {
@@ -10,6 +11,8 @@ int create_eventfd() {
     int _fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     return _fd;
 }
+
+class TCPConnection;
 
 EventLoop::EventLoop() 
     : poll_(new Epoll(this))
@@ -137,4 +140,14 @@ void EventLoop::handle_expired_time() {
 
 std::shared_ptr<TimerGuard<TCPConnection>> EventLoop::get_timer_() {
     return this->timer_;
+}
+
+void EventLoop::put(std::pair<int,std::shared_ptr<TCPConnection>>&& _item) {
+    this->connections_.insert(std::move(_item));
+}
+
+void EventLoop::erase(int idx) {
+    if (this->connections_.find(idx) != this->connections_.end()) {
+        this->connections_.erase(idx);
+    }
 }

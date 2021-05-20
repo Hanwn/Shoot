@@ -8,6 +8,7 @@
 #include "TimerGuard.hpp"
 #include <vector>
 #include "TcpConnection.hpp"
+#include <unordered_map>
 
 class TCPConnection;
 
@@ -37,6 +38,8 @@ public:
     void wake_up_cur_thread();
     void wake_up_response();
     void quit();
+    void put(std::pair<int,std::shared_ptr<TCPConnection>>&&);
+    void erase(int);
     std::shared_ptr<TimerGuard<TCPConnection>> get_timer_();
 private:
     void handle_expired_time();
@@ -52,6 +55,7 @@ private:
     std::shared_ptr<Channel> wake_up_channel_;
     bool quit_;
     std::shared_ptr<TimerGuard<TCPConnection>> timer_;
+    std::unordered_map<int, std::shared_ptr<TCPConnection>> connections_;
 };
 
 

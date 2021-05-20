@@ -2,6 +2,7 @@
 #include "logger.h"
 #include "http_parse.hpp"
 #include <sys/syscall.h>
+#include <iostream>
 
 char favicon[] = {};
 
@@ -20,7 +21,7 @@ TCPConnection::TCPConnection(EventLoop* _loop, int _conn_fd, std::shared_ptr<Tim
         channel_->set_read_callback(std::bind(&TCPConnection::handle_read, this));
         // channel_->set_write_callback(std::bind(&TCPConnection::handle_write, this));
         // (std::bind(TCPConnection::handle_conn, this));
-        channel_->set_close_callback(std::bind(&TCPConnection::handle_close, this));
+        // channel_->set_close_callback(std::bind(&TCPConnection::handle_close, this));
         channel_->set_error_callback(std::bind(&TCPConnection::handle_err, this));
         connection_state = CONNECTED;
 }
@@ -59,7 +60,7 @@ void TCPConnection::handle_read() {
     }else {
         handle_err();
     }
-        handle_close();
+    // handle_close();
     // handle_close();
 }
 
@@ -156,10 +157,12 @@ void TCPConnection::handle_close() {
     // LOG<<static_cast<int>(syscall(SYS_gettid))<<"--->19";
     connection_state = DISCONNECTED;
     channel_->disalbel_all();
-    std::shared_ptr<TCPConnection> from_this(shared_from_this());
-    if (from_this) {
-        close_cb(from_this);
-    }
+    // LOG<<"close";
+    destroy_conn();
+    // std::shared_ptr<TCPConnection> from_this(shared_from_this());
+    // if (from_this) {
+    //     close_cb(from_this);
+    // }
 }
 
 void TCPConnection::destroy_conn() {
@@ -171,6 +174,7 @@ void TCPConnection::destroy_conn() {
         channel_->disalbel_all();
     }
     channel_->remove();
+    this->loop_->erase(fd_);
 }
 
 void TCPConnection::new_event() {
@@ -179,6 +183,7 @@ void TCPConnection::new_event() {
         // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->16";
     auto tmp_timer = timer_.lock();
     // tmp_timer->add_time_node(shared_from_this(), 20);
+    this->loop_->put({channel_->get_fd(), shared_from_this()});
     channel_->enable_read();
 }
 
