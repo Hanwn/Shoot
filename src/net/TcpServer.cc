@@ -36,7 +36,7 @@ TCPServer::~TCPServer() {
 void TCPServer::start(int thread_num) {
     // LOG<<static_cast<int>(::syscall(SYS_gettid))<<"--->1";
     // LOG<<"Server is RUNNING:"<<"--->1";
-    event_loop_pool_->set_thread_nums(4);
+    event_loop_pool_->set_thread_nums(thread_num);
     event_loop_pool_->start(cb_);
     accpet_channel_->set_read_callback(std::bind(&TCPServer::handle_new_conn, this));
     // 将当前channel加入到loop监听中
