@@ -1,6 +1,7 @@
 #include "TcpConnection.hpp"
 #include "logger.h"
 #include "http_parse.hpp"
+#include <asm-generic/errno-base.h>
 #include <sys/syscall.h>
 #include <iostream>
 
@@ -42,23 +43,27 @@ void TCPConnection::handle_read() {
     ::memset(buf, 0, sizeof buf);
     // ssize_t read_len = read(channel_->get_fd());
     // STAR:默认对于请求操作是可以一次读完的，即确保可以一次读完
-    read_len = read(channel_->get_fd(), buf, sizeof buf);
-    if (read_len > 0) {
-        //TODO:read data
-        // 读取完整，则需要往对端写数据
-        handle_err();
-        // LOG<<buf;
-        //TODO:加入到定时器中
-        // handle_err();
-        // handle_close();
-        channel_->enable_read();
-    }else if (read_len == 0){
-        // 说明对端关闭
-        LOG<<"peer close "<<static_cast<int>(syscall(SYS_gettid));
-        handle_close();
-        return;
-    }else {
-        handle_err();
+    while(1) {
+        read_len = read(channel_->get_fd(), buf, sizeof buf);
+        if (read_len > 0) {
+            //TODO:read data
+            // 读取完整，则需要往对端写数据
+            handle_err();
+            // LOG<<buf;
+            //TODO:加入到定时器中
+            // handle_err();
+            // handle_close();
+            channel_->enable_read();
+            break;
+        }else if (read_len == 0){
+            // 说明对端关闭
+            LOG<<"peer close "<<static_cast<int>(syscall(SYS_gettid));
+            handle_close();
+            return;
+        }else if(EAGAIN == errno) {
+            // handle_err();
+            continue;
+        }
     }
     // handle_close();
     // handle_close();
